@@ -25,6 +25,7 @@ def signup_view(request):
 			p = form.cleaned_data['password']
 			# user = User.objects.create_user(ln, fn, u, e, p)
 			user = User.objects.create_user(u, e, p)
+			login(request, user)
 			return HttpResponseRedirect('/')
 	else:
 		form = UserForm()
@@ -50,8 +51,10 @@ def login_view(request):
 					return HttpResponseRedirect('/')
 				else:
 					print("The account has been disabled.")
+					return HttpResponseRedirect('/login/')
 			else:
 				print("The username and/or password is incorrect.")
+				return render(request, 'login.html', {'error': "The username and/or password is incorrect.", 'form': form})
 	else:
 		form = LoginForm()
 		return render(request, 'login.html', {'form': form})

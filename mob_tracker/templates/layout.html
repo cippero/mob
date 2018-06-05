@@ -28,6 +28,12 @@
 			</nav>
 		</div>
 	</header>
+
+	{% if error %}
+	<div class="messages container center-align">
+		<p class="yellow pt20 pb20">{{error}}</p>
+	</div>
+	{% endif %}
 	
 	<div class="container">
 		{% block content %}{% endblock %}
