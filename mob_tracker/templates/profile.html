@@ -2,6 +2,27 @@
 
 {% block content %}
 <h1>Profile</h1>
-<h3>Welcome, {{ user.username }}!</h3>
+<h3>Welcome, {{ profile.user }}!</h3>
+
+{% if entries %}
+	{% for entry in entries %}
+		<h4>{{entry.title}}</h4>
+		<ul>
+			<li>Category: {{entry.category}}</li>
+			<li>Subcategory: {{entry.subcategory}}</li>
+			<li>Description: {{entry.description}}</li>
+			<li>Date added: {{entry.add_date}}</li>
+			<li>Contributors:</li>
+
+		</ul>
+	{% endfor %}
+{% endif %}
 
 {% endblock %}
+
+title = models.CharField(max_length=100)
+	category = models.CharField(max_length=100)
+	subcategory = models.CharField(max_length=100, default=None)
+	description = models.TextField()
+	add_date = models.DateTimeField('date added')
+	contributors

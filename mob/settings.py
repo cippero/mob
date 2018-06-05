@@ -19,11 +19,25 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
+
+import environ
+# root = environ.Path(__file__) - 3 # three folder back (/a/b/c/ - 3 = /)
+env = environ.Env(DEBUG=(bool, False),) # set default values and casting
+environ.Env.read_env('.env')
+
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'ghpsn78+^30_x)j31(s9ei9sd)6k^_mg)y9@jse59vd#88l$!&'
+SECRET_KEY = env('SECRET_KEY')
+
+from watson_developer_cloud import NaturalLanguageUnderstandingV1
+
+NATURAL_LANGUAGE_PROCESSING = NaturalLanguageUnderstandingV1(
+  username=env('NLP_USERNAME'),
+  password=env('NLP_PASSWORD'),
+  version='2018-03-16')
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG')
 
 ALLOWED_HOSTS = []
 

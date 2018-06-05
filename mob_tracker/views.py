@@ -8,34 +8,82 @@ from django.contrib.auth import authenticate, login, logout
 # from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from .models import Entry, Tip, Profile
-from .forms import LoginForm, UserForm
+from .forms import LoginForm, UserForm, SearchForm
+from django.conf import settings
+from watson_developer_cloud.natural_language_understanding_v1 \
+  import Features, EntitiesOptions, KeywordsOptions
+import json
 
 
 def index(request):
-	return render(request, 'index.html')
+	if request.method == 'POST':
+		form = SearchForm(request.POST)
+		if form.is_valid():
+			q = form.cleaned_data['query']
+			response = settings.NATURAL_LANGUAGE_PROCESSING.analyze(
+			  text=q,
+			  features=Features(
+			    entities=EntitiesOptions(
+			      emotion=True,
+			      sentiment=True,
+			      limit=2),
+			    keywords=KeywordsOptions(
+			      emotion=True,
+			      sentiment=True,
+			      limit=2)))
+			print(json.dumps(response, indent=2))
+			return render(request, 'index.html', {'query': json.dumps(response, indent=2)})
+		else: 
+			print(form)
+			print('form errors', form.errors)
+			return render(request, 'index.html', {'query': {}, 'form': form})
+	else:
+		return render(request, 'index.html')
 
 def signup_view(request):
 	if request.method == 'POST':
 		form = UserForm(request.POST)
 		if form.is_valid():
-			ln = form.cleaned_data['last_name']
-			fn = form.cleaned_data['first_name']
+			# ln = form.cleaned_data['last_name']
+			# fn = form.cleaned_data['first_name']
 			u = form.cleaned_data['username']
 			e = form.cleaned_data['email']
 			p = form.cleaned_data['password']
-			# user = User.objects.create_user(ln, fn, u, e, p)
 			user = User.objects.create_user(u, e, p)
 			login(request, user)
 			return HttpResponseRedirect('/')
 	else:
 		form = UserForm()
 		return render(request, 'signup.html', {'form': form})
-		# return HttpResponse('signup.html')
+
+def entry_view(request, entry_title):
+	# if request.method == 'POST':
+	# 	form = UserForm(request.POST)
+	# 	if form.is_valid():
+	# 		# ln = form.cleaned_data['last_name']
+	# 		# fn = form.cleaned_data['first_name']
+	# 		u = form.cleaned_data['username']
+	# 		e = form.cleaned_data['email']
+	# 		p = form.cleaned_data['password']
+	# 		user = User.objects.create_user(u, e, p)
+	# 		login(request, user)
+	# 		return HttpResponseRedirect('/')
+	# else:
+		# form = UserForm()
+		# return render(request, 'signup.html', {'form': form})
+	entry = Entry.objects.get(title=entry_title)
+	return render(request, 'entry.html', {'entry': entry})
 
 def profile_view(request, username):
-	user = User.objects.get(username=username)
-	# cats = Cat.objects.filter(user=user)
-	return render(request, 'profile.html', {'user': user})
+	user = Profile.objects.get(user=request.user)
+	# entries = Entry.objects.filter(contributors=user)
+	entries = user.entries.all()
+	contributors = {}
+	for entry in entries:
+		title = ''.join(e for e in entry.title if e.isalnum()).lower()
+		contributors[title] = 1
+	print('%%%%%%%%%%%%%%', contributors)
+	return render(request, 'profile.html', {'profile': user, 'entries': entries})
 
 def login_view(request):
 	if request.method == 'POST':
@@ -62,7 +110,6 @@ def login_view(request):
 def logout_view(request):
 	logout(request)
 	return HttpResponseRedirect('/')
-
 
 
 
