@@ -1,22 +1,40 @@
-# from django.views.generic.edit import CreateView, UpdateView, DeleteView
-# from django.views.generic.detail import DetailView
-# from django.views.generic.list import ListView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormView
+from django.views.generic.detail import DetailView
+from django.views.generic.list import ListView
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
 from django.contrib.auth import authenticate, login, logout
+# from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
-from .models import Entry, Tip
-from .forms import LoginForm
+from .models import Entry, Tip, Profile
+from .forms import LoginForm, UserForm
 
 
 def index(request):
 	return render(request, 'index.html')
 
+def signup_view(request):
+	if request.method == 'POST':
+		form = UserForm(request.POST)
+		if form.is_valid():
+			ln = form.cleaned_data['last_name']
+			fn = form.cleaned_data['first_name']
+			u = form.cleaned_data['username']
+			e = form.cleaned_data['email']
+			p = form.cleaned_data['password']
+			# user = User.objects.create_user(ln, fn, u, e, p)
+			user = User.objects.create_user(u, e, p)
+			return HttpResponseRedirect('/')
+	else:
+		form = UserForm()
+		return render(request, 'signup.html', {'form': form})
+		# return HttpResponse('signup.html')
+
 def profile_view(request, username):
 	user = User.objects.get(username=username)
-	cats = Cat.objects.filter(user=user)
-	return render(request, 'profile.html', {'username': username, 'cats': cats})
+	# cats = Cat.objects.filter(user=user)
+	return render(request, 'profile.html', {'user': user})
 
 def login_view(request):
 	if request.method == 'POST':

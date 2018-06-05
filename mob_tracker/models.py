@@ -9,25 +9,24 @@ class Entry(models.Model):
 	subcategory = models.CharField(max_length=100, default=None)
 	description = models.TextField()
 	add_date = models.DateTimeField('date added')
+	contributors = models.ManyToManyField('Profile', blank=True)
 
 	def __str__(self):
 		return self.title
 
 	class Meta:
 		ordering = ('title',)
-		# db_table = 'Entries'
 
 
 class Profile(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
-	name = models.CharField(max_length=50)
-	entries = models.ManyToManyField(Entry)
+	entries = models.ManyToManyField('Entry', through=Entry.contributors.through, blank=True)
 
 	def __str__(self):
-		return self.name
+		return self.user.username
 
-	class Meta:
-		ordering = ('name',)
+	# class Meta:
+	# 	ordering = ('username',)
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
@@ -47,7 +46,7 @@ class Tip(models.Model):
 	add_date = models.DateTimeField('date added')
 
 	def __str__(self):
-		return self.topic, self.author, self.body
+		return '%s, %s, %s' % (self.topic, self.author, self.body)
 
 	class Meta:
 		ordering = ('topic',)
