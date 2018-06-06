@@ -10,14 +10,35 @@ class Entry(models.Model):
 	subcategory = models.CharField(max_length=100, default=None)
 	description = models.TextField(default=None)
 	add_date = models.DateTimeField('date added')
-	tips = models.ManyToManyField('Tip', blank=True)
+	contributors = models.ManyToManyField('Profile', blank=True)
 
 	def __str__(self):
-		return self.title
+		return self.title_clean
 
 	class Meta:
 		ordering = ('title',)
-		
+
+
+class Profile(models.Model):
+	user = models.OneToOneField(User, on_delete=models.CASCADE)
+	entries = models.ManyToManyField('Entry', through=Entry.contributors.through, blank=True)
+
+	def __str__(self):
+		return self.user.username
+
+	# class Meta:
+	# 	ordering = ('username',)
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()
+
+
 class Tip(models.Model):
 	author = models.ForeignKey(User, models.SET_NULL, blank=True, null=True)
 	topic = models.ForeignKey(Entry, models.PROTECT)
@@ -26,27 +47,44 @@ class Tip(models.Model):
 	add_date = models.DateTimeField('date added')
 
 	def __str__(self):
-		return '%s, %s, %s' % (self.topic, self.author, self.body)
+		# return '%s, %s, %s' % (self.topic, self.author, self.body)
+		return self.body
 
 	class Meta:
 		ordering = ('topic',)
 
 
-# class Profile(models.Model):
-# 	user = models.OneToOneField(User, on_delete=models.CASCADE)
-# 	entries = models.ManyToManyField('Entry', through=Entry.contributors.through, blank=True)
+
+
+
+
+
+
+
+# class Entry(models.Model):
+# 	title_clean = models.CharField(max_length=100)
+# 	title = models.CharField(max_length=100)
+# 	category = models.CharField(max_length=100)
+# 	subcategory = models.CharField(max_length=100, default=None)
+# 	description = models.TextField(default=None)
+# 	add_date = models.DateTimeField('date added')
+# 	tips = models.ManyToManyField('Tip', blank=True)
 
 # 	def __str__(self):
-# 		return self.user.username
+# 		return self.title
 
-	# class Meta:
-	# 	ordering = ('username',)
+# 	class Meta:
+# 		ordering = ('title',)
+		
+# class Tip(models.Model):
+# 	author = models.ForeignKey(User, models.SET_NULL, blank=True, null=True)
+# 	topic = models.ForeignKey(Entry, models.PROTECT)
+# 	body = models.TextField()
+# 	votes = models.IntegerField(default=0)
+# 	add_date = models.DateTimeField('date added')
 
-# @receiver(post_save, sender=User)
-# def create_user_profile(sender, instance, created, **kwargs):
-#     if created:
-#         Profile.objects.create(user=instance)
+# 	def __str__(self):
+# 		return '%s, %s, %s' % (self.topic, self.author, self.body)
 
-# @receiver(post_save, sender=User)
-# def save_user_profile(sender, instance, **kwargs):
-#     instance.profile.save()
+# 	class Meta:
+# 		ordering = ('topic',)

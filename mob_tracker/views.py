@@ -76,13 +76,13 @@ def entry_view(request, entry_title):
 
 def profile_view(request, username):
 	user = Profile.objects.get(user=request.user)
-	# entries = Entry.objects.filter(contributors=user)
-	entries = user.entries.all()
-	contributors = {}
-	for entry in entries:
-		title = ''.join(e for e in entry.title if e.isalnum()).lower()
-		contributors[title] = 1
-	print('%%%%%%%%%%%%%%', contributors)
+	# user = Profile.objects.get(user=request.user.username)
+	# print('&&&&&&&&&&', request.user.username)
+	# user = Profile.objects.get(user=username)
+	entries = user.entries.all().values()
+	for i in range(len(entries)):
+		users = Profile.objects.filter(entries=entries[i]['id'])
+		entries[i]['contributors'] = users
 	return render(request, 'profile.html', {'profile': user, 'entries': entries})
 
 def login_view(request):
