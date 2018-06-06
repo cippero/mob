@@ -1,12 +1,12 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<h3 class="center-align mt50">What would you like to do?</h3>
+<h3 class="center-align mt50">What would you like to conquer next?</h3>
 <form method="POST" action=".">
 	{% csrf_token %}
 	<div class="row">
 		<div class="input-field col s12">
-			<input id="search" type="text" class="validate" name="query">
+			<input id="search" type="text" class="validate" name="query" autofocus="true" value="{{ search }}">
 		</div>
 	</div>
 	<div class="row">
@@ -16,12 +16,11 @@
 	</div>
 </form>
 
-<!-- <div class="conainer center-align">
-	<div id="pieChart" class="chart"></div>
-</div> -->
 
 {% if query %}
-	<p>{{ query }}</p>
+<div class="conainer center-align">
+	<div id="pieChart" class="chart"></div>
+</div>
 {% endif %}
 
 {% if form.errors %}

@@ -26,17 +26,17 @@ def index(request):
 			    entities=EntitiesOptions(
 			      emotion=True,
 			      sentiment=True,
-			      limit=2),
+			      limit=5),
 			    keywords=KeywordsOptions(
 			      emotion=True,
 			      sentiment=True,
-			      limit=2)))
+			      limit=5)))
 			print(json.dumps(response, indent=2))
-			return render(request, 'index.html', {'query': json.dumps(response, indent=2)})
+			return render(request, 'index.html', {'query': json.dumps(response, indent=2), 'search': q})
 		else: 
 			print(form)
 			print('form errors', form.errors)
-			return render(request, 'index.html', {'query': {}, 'form': form})
+			return render(request, 'index.html', {'query': {}, 'form': form, 'search': ''})
 	else:
 		return render(request, 'index.html')
 
@@ -71,8 +71,11 @@ def entry_view(request, entry_title):
 	# else:
 		# form = UserForm()
 		# return render(request, 'signup.html', {'form': form})
-	entry = Entry.objects.get(title=entry_title)
-	return render(request, 'entry.html', {'entry': entry})
+	entry = Entry.objects.get(title_clean=entry_title)
+	contributors = Profile.objects.filter(entries=entry.id)
+	# print(Profile.objects.filter(entries=entry['id']))
+	print(entry.id)
+	return render(request, 'entry.html', {'entry': entry, 'contributors': contributors})
 
 def profile_view(request, username):
 	user = Profile.objects.get(user=request.user)
