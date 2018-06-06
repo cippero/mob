@@ -11,9 +11,9 @@ from .models import Entry, Tip, Profile
 from .forms import LoginForm, UserForm, SearchForm
 from django.conf import settings
 from watson_developer_cloud.natural_language_understanding_v1 \
-  import Features, EntitiesOptions, KeywordsOptions
+  import Features, EntitiesOptions, KeywordsOptions, ConceptsOptions, CategoriesOptions, SemanticRolesOptions
 import json
-
+import requests
 
 def index(request):
 	if request.method == 'POST':
@@ -21,22 +21,60 @@ def index(request):
 		if form.is_valid():
 			q = form.cleaned_data['query']
 			response = settings.NATURAL_LANGUAGE_PROCESSING.analyze(
-			  text=q,
-			  features=Features(
-			    entities=EntitiesOptions(
-			      emotion=True,
-			      sentiment=True,
-			      limit=5),
-			    keywords=KeywordsOptions(
-			      emotion=True,
-			      sentiment=True,
-			      limit=5)))
-			print(json.dumps(response, indent=2))
-			return render(request, 'index.html', {'query': json.dumps(response, indent=2), 'search': q})
+				text=q,
+				features=Features(
+				# entities=EntitiesOptions(
+				#   emotion=True,
+				#   sentiment=True,
+				#   limit=5),
+				keywords=KeywordsOptions(
+					# emotion=True,
+					sentiment=True,
+					limit=5),
+				# concepts=ConceptsOptions(
+				# 	limit=5),
+				categories=CategoriesOptions(),
+				semantic_roles=SemanticRolesOptions(
+					entities=True,
+					keywords=True,
+					limit=1)))
+			# print(json.dumps(response, indent=2))
+			query = {}
+			query['semantic_roles'] = {
+										'subject': response['semantic_roles'][0]['subject']['text'].title(), 
+										'action': response['semantic_roles'][0]['action']['verb']['text'], 
+										'object': response['semantic_roles'][0]['object']['text'].title()}
+			query['keywords'] = []
+			for keyword in response['keywords']:
+				query['keywords'].append({
+										'text': keyword['text'].title(), 
+										'relevance': int(keyword['relevance']*100.0)})
+			query['keywords_length'] = len(query['keywords'])
+			query['categories'] = []
+			for category in response['categories']: 
+				query['categories'].append({'score': int(category['score']*100.0), 'label': str(category['label'])[1:].title()})
+			
+			# accesscode = request.GET.get('code')
+			# redirect_uri = 'http://www.example.com'
+			# url = 'https://www.linkedin.com/uas/oauth2/accessToken'
+
+			# postdata = {
+			# 	'grant_type': 'authorization_code',
+			# 	'code': accesscode,
+			# 	'redirect_uri': redirect_uri,
+			# 	'client_id': consumer_key,
+			# 	'client_secret': consumer_secret,
+			# }
+
+			# r = requests.post('http://localhost:8000/api/', data=query)
+			# print(r.status_code)
+			# print(r.text)
+
+			return render(request, 'index.html', {'query': query, 'search': q})
 		else: 
 			print(form)
 			print('form errors', form.errors)
-			return render(request, 'index.html', {'query': {}, 'form': form, 'search': ''})
+			return render(request, 'index.html', {'form': form, 'search': ''})
 	else:
 		return render(request, 'index.html')
 

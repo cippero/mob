@@ -1,3 +1,32 @@
+// $( document ).ready(function() {
+//   console.log('pie.js is running');
+//   $.ajax({
+//     type: "GET",
+//     url: '/',
+//     success: success,
+//     error: error
+//   });
+
+// });
+
+// function success(data) {
+//   console.log('%%%%%%%%%%%%%%%%%%%%%%%\Success GETTING:\n' + data);
+// }
+
+// function error(event) {
+//   console.log('%%%%%%%%%%%%%%%%%%%%%%%\nError GETTING:\n' + event);
+// }
+
+
+// $(function(){
+//   $("#pieChart").drawPieChart([
+//     { title: "Cash",              value : 120,  color: "#2C3E50" },
+//     { title: "Fixed Interest",    value:  1,   color: "#fe4400" },
+//     { title: "Property",          value:  2,   color: "#018ab6" },
+//     { title: "Australian shares", value : 6,   color: "#fff100" },
+//     { title: "Intl. shares",      value : 2,   color: "#D7DADB" }
+//   ]);
+// });
 $(function(){
   $("#pieChart").drawPieChart([
     { title: "Cash",              value : 120,  color: "#2C3E50" },

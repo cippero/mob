@@ -16,11 +16,17 @@
 	</div>
 </form>
 
-
 {% if query %}
-<div class="conainer center-align">
-	<div id="pieChart" class="chart"></div>
-</div>
+	<h3 class="center-align">{{ query.semantic_roles.subject }} {{ query.semantic_roles.action }}...</h3>
+	<p class="center-align">{{ query.semantic_roles.object }}</p>
+	<div class="progress-bars-class">
+	{% for keyword in query.keywords %}
+		<div class="progress-wrap progress wrap-class{{ forloop.counter0 }}" data-progress-percent="{{ keyword.relevance }}">
+			<p>{{ keyword.text }}: {{ keyword.relevance }}% Relevance</p>
+			<div class="progress-bar progress bar-class{{ forloop.counter0 }}"></div>
+		</div>
+	{% endfor %}
+	</div>
 {% endif %}
 
 {% if form.errors %}
