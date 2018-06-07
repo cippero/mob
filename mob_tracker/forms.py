@@ -17,7 +17,13 @@ class UserForm(forms.Form):
 class SearchForm(forms.Form):
 	query = forms.CharField(max_length=200)
 
-
+class EntryForm(forms.Form):
+	title = forms.CharField(max_length=100)
+	category = forms.CharField(max_length=100)
+	subcategory = forms.CharField(max_length=100)
+	description = forms.CharField(max_length=200)
+	# add_date = forms.DateTimeField('date added')
+	# contributors = models.ManyToManyField('Profile', blank=True)
 
 
 

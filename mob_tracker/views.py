@@ -8,7 +8,7 @@ from django.contrib.auth import authenticate, login, logout
 # from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from .models import Entry, Tip, Profile
-from .forms import LoginForm, UserForm, SearchForm
+from .forms import LoginForm, UserForm, SearchForm, EntryForm
 from django.conf import settings
 from watson_developer_cloud.natural_language_understanding_v1 \
   import Features, EntitiesOptions, KeywordsOptions, ConceptsOptions, CategoriesOptions, SemanticRolesOptions
@@ -38,7 +38,7 @@ def index(request):
 					entities=True,
 					keywords=True,
 					limit=1)))
-			# print(json.dumps(response, indent=2))
+			print(json.dumps(response, indent=2))
 			query = {}
 			query['semantic_roles'] = {
 										'subject': response['semantic_roles'][0]['subject']['text'].title(), 
@@ -95,8 +95,8 @@ def signup_view(request):
 		return render(request, 'signup.html', {'form': form})
 
 def entry_view(request, entry_title):
-	# if request.method == 'POST':
-	# 	form = UserForm(request.POST)
+	if request.method == 'POST':
+		form = UserForm(request.POST)
 	# 	if form.is_valid():
 	# 		# ln = form.cleaned_data['last_name']
 	# 		# fn = form.cleaned_data['first_name']

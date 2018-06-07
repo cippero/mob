@@ -15,7 +15,7 @@
   position: relative;
 }
 .progress-bar {
-  background: #ddd;
+  background: #333;
   left: 0;
   position: absolute;
   top: 0;
@@ -40,6 +40,23 @@ h4,
 h5 {
   color: white;
 }
+a {
+  color: black;
+}
 .navigation-class {
   background-color: #00e8f4;
+}
+.search-input-class {
+  font-size: 20px!important;
+/*  overflow-wrap: break-word;
+  height: auto;*/
+}
+/*.search-input-container-class {
+  min-width: 100px;
+  max-width: 100px;
+}*/
+@media all and (max-width: 768px) {
+  .search-title-class {
+    font-size: 20px!important;
+  }
 }
