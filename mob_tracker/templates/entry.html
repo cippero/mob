@@ -36,8 +36,8 @@
 				</div>
 			</div>
 			<div class="row">
-				<div class="col 4 vote" data-vote="True">+Upvote</div>
-				<div class="col 4 vote" data-vote="False">-Downvote</div>
+				<div class="col 4 vote" data-vote="true" data-id="{{comment.id}}">+Upvote</div>
+				<div class="col 4 vote" data-vote="false" data-id="{{comment.id}}">-Downvote</div>
 				<div class="col 4">Votes: {{comment.votes}}</div>
 			</div>
 		{% endfor %}

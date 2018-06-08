@@ -22,14 +22,7 @@ class EntryForm(forms.Form):
 	description = forms.CharField(max_length=200, required=False)
 
 class TipForm(forms.Form):
-	# author = forms.IntegerField()
-	# topic = forms.IntegerField()
 	body = forms.CharField(max_length=200)
-	# votes = forms.IntegerField()
-	# voters = models.ManyToManyField('Profile', through=Profile, blank=True, default=None)
-	# add_date = models.DateTimeField('date added', default=datetime.now, blank=True)
 
-# class TipVoteForm(forms.Form):
-# 	tip = forms.IntegerField()
-# 	user = forms.IntegerField()
-# 	polarity = forms.BooleanField()
+class TipVoteForm(forms.Form):
+	polarity = forms.BooleanField(required=False)

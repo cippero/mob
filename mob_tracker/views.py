@@ -8,7 +8,7 @@ from django.contrib.auth import authenticate, login, logout
 # from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from .models import Entry, Tip, Profile, TipVote
-from .forms import LoginForm, UserForm, SearchForm, EntryForm, TipForm
+from .forms import LoginForm, UserForm, SearchForm, EntryForm, TipForm, TipVoteForm
 from django.conf import settings
 from watson_developer_cloud.natural_language_understanding_v1 \
   import Features, EntitiesOptions, KeywordsOptions, ConceptsOptions, CategoriesOptions, SemanticRolesOptions
@@ -84,6 +84,17 @@ def entry_view(request, entry_title):
 		comments = Tip.objects.filter(topic=entry).order_by('-add_date')
 		# print(Profile.objects.filter(entries=entry['id']))
 		# print(entry.id)
+
+		# if user not in tip['voters']: tip.voters.add(user)
+		# voters = Tip.objects.filter()
+		# comments = user.comments.all().values()
+		# for i in range(len(comments)):
+			# tip = Tip.objects.get(id=tip_id)
+			# users = Profile.objects.filter(tips=comments[i]['id'])
+			# comments[i]['voters'] = users
+			# print(comments[i]['voters'])
+
+
 		return render(request, 'entry.html', {'entry': entry, 'contributors': contributors, 'comments': comments, 'user': user})
 
 def tip_view(request, entry_title):
@@ -93,7 +104,7 @@ def tip_view(request, entry_title):
 			comment = {}
 			color = '255,255,255'
 			comment['body'] = form.cleaned_data['body']
-			if len(comment['body']) < 10:
+			if len(comment['body']) > 10:
 				response = settings.NATURAL_LANGUAGE_PROCESSING.analyze(
 					text=comment['body'],
 					features=Features(
@@ -105,22 +116,22 @@ def tip_view(request, entry_title):
 				scores, red, green, blue = [], [], [], []
 				for keyword in response['keywords']:
 					scores.append((int(keyword['relevance']*10.0)+int(keyword['sentiment']['score']*10.0))//2)
-					red.append(int(keyword['emotion']['joy'])*255.0)
-					green.append((int(keyword['emotion']['anger']) + int(keyword['emotion']['disgust']))*255.0//2)
-					blue.append((int(keyword['emotion']['fear']) + int(keyword['emotion']['sadness']))*255.0//2)
+					# red.append(keyword['emotion']['joy']*255)
+					# green.append((keyword['emotion']['anger'] + keyword['emotion']['disgust'])*255//2)
+					# blue.append((keyword['emotion']['fear'] + keyword['emotion']['sadness'])*255//2)
 				comment['score'] = s.mean(scores)+1
 				# print('SCORE:', comment['score'])
 				# comment['color'] = hex(int(s.mean(red)))[1:] + hex(int(s.mean(green)))[1:] + hex(int(s.mean(blue)))[1:]
-				comment['color'] = {'r': int(s.mean(red)), 'g': int(s.mean(green)), 'b': int(s.mean(blue))}
-				color = '%s,%s,%s' % (comment['color']['r'], comment['color']['g'], comment['color']['b'])
-				print('RED:', int(s.mean(red)))
-				print('GREEN:', int(s.mean(green)))
-				print('BLUE:', int(s.mean(blue)))
-				print('COMMENT COLOR:', comment['color'])
-				print('COLOR:', color)
+				# comment['color'] = {'r': int(s.mean(red)), 'g': int(s.mean(green)), 'b': int(s.mean(blue))}
+				# color = '%s,%s,%s' % (comment['color']['r'], comment['color']['g'], comment['color']['b'])
+				# print('RED:', int(s.mean(red)))
+				# print('GREEN:', int(s.mean(green)))
+				# print('BLUE:', int(s.mean(blue)))
+				# print('COMMENT COLOR:', comment['color'])
+				# print('COLOR:', color)
 			else:
 				comment['score'] = 1
-				comment['color'] = {'r': 255, 'g': 255, 'b': 255}
+				# comment['color'] = {'r': 255, 'g': 255, 'b': 255}
 			
 			# print('ENTRY_TITLE:', entry_title)
 			user = Profile.objects.get(user=request.user)
@@ -144,18 +155,36 @@ def tip_view(request, entry_title):
 	else:
 		return render(request, 'entry.html', {'form': form, 'tip': ''})
 
-def tip_vote_view(request, t, p):
+def tip_vote_view(request, tip_id):
 	if request.method == 'POST':
-		# form = TipVoteForm(request.POST)
-		# if form.is_valid():
-		# 	p = form.cleaned_data['polarity']
-		# tip.save(update_fields=['name'])
-		user = Profile.objects.get(user=request.user)
-		print(user.id)
-		tip = TipVote.objects.create(tip=t, 
-									user=user.id, 
-									polarity=p)
-		entry.contributors.add(user)
+		form = TipVoteForm(request.POST)
+		if form.is_valid():
+			p = form.cleaned_data['polarity']
+			tip = Tip.objects.get(id=tip_id)
+			tip_vote = None
+			try:
+				tip_vote = TipVote.objects.get(user=user)
+				tip_vote.polarity = not tip_vote.polarity
+				tip_vote.save(update_fields=['polarity'])
+			except:
+				tip_vote = TipVote.objects.create(tip=tip, 
+												user=request.user, 
+												polarity=p)
+
+			user = Profile.objects.get(user=request.user)
+			voters = Tip.objects.filter()
+			if user not in voters: tip.voters.add(user)
+			# if user not in tip['voters']: tip.voters.add(user)
+			if p: tip.votes += 1
+			else: tip.votes -= 1
+			tip.save(update_fields=['votes'])
+
+			return HttpResponseRedirect('/')
+		else:
+			print('form errors', form.errors)
+			return HttpResponseRedirect('/')
+	else:
+		return HttpResponseRedirect('/')
 
 def profile_view(request, username):
 	browsing_user = User.objects.get(username=username)

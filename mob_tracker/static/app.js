@@ -42,6 +42,22 @@ $(document).ready(function(){
 			error: error
 		});
 	});
+
+	$('.vote').on('click', (e) => {
+		e.preventDefault();
+		let id = e.target.getAttribute("data-id");
+		let vote = e.target.getAttribute("data-vote");
+		// console.log(vote);
+		$.ajax({
+			type: "POST",
+			headers: {'Content-Type': 'application/x-www-form-urlencoded',
+						'X-CSRFToken': csrftoken},
+			url: `/tip/${id}/vote/`,
+			data: $.param({'polarity': vote}),
+			success: success,
+			error: error
+		});
+	});
 });
 
 let success = function(data) {
