@@ -43,14 +43,15 @@ def index(request):
 										'text': keyword['text'].title(), 
 										'relevance': int(keyword['relevance']*100.0)})
 			query['keywords_length'] = len(query['keywords'])
-
-			return render(request, 'index.html', {'query': query, 'search': q})
+			entries = Entry.objects.filter()
+			return render(request, 'index.html', {'query': query, 'search': q, 'entries': entries})
 		else: 
 			# print(form)
 			# print('form errors', form.errors)
 			return render(request, 'index.html', {'form': form, 'search': ''})
 	else:
-		return render(request, 'index.html')
+		entries = Entry.objects.filter()
+		return render(request, 'index.html', {'entries': entries})
 
 
 def entry_view(request, entry_title):
