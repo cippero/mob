@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+import dj_database_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -39,7 +40,7 @@ NATURAL_LANGUAGE_PROCESSING = NaturalLanguageUnderstandingV1(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['mobtracker.herokuapp.com', 'localhost']
 
 
 # Application definition
@@ -84,24 +85,18 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mob.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/2.0/ref/settings/#databases
-
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': ('mob'),
 #     }
 # }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': ('mob'),
-    }
-}
-
+# change back to normal database for localhost
+DATABASES = {}
+DATABASES['default'] = dj_database_url.config(
+    default='postgres://cnupkaabfeqrch:9d706c13fb535747007f6ca05b2f28ccd69c7ef89f215c87571b255ff7ef51e3@ec2-23-23-130-158.compute-1.amazonaws.com:5432/de6jnmg9shjd86'
+)
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
