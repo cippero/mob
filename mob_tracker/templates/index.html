@@ -1,6 +1,136 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<h3 class="center-align">This is the index</h3>
+<h3 class="center-align mt50 search-title-class">What would you like to conquer next?</h3>
+<form method="POST" action=".">
+	{% csrf_token %}
+	<div class="row">
+		<div class="input-field col s12 search-input-container-class">
+			<input id="search" type="text" class="validate center-align search-input-class" name="query" autofocus="true" value="{{ search }}" contenteditable="true">
+		</div>
+	</div>
+	<div class="row">
+		<div class="input-field col s12 mt0 center-align">
+			<input class="btn" type="submit" value="Submit"></input>
+		</div>
+	</div>
+</form>
+
+{% if query %}
+	<h3 class="center-align">{{ query.semantic_roles.subject }} {{ query.semantic_roles.action }}...</h3>
+	<p class="center-align">{{ query.semantic_roles.object }}</p>
+	<div class="progress-bars-class">
+	{% for keyword in query.keywords %}
+		<div>
+			<div class="progress-wrap progress wrap-class{{ forloop.counter0 }}" data-progress-percent="{{ keyword.relevance }}">
+				<a class="modal-trigger" href="#modal{{ forloop.counter0 }}">
+					<p class="pt15">{{ keyword.text }} ({{ keyword.relevance }}%)</p>
+					<div class="progress-bar progress bar-class{{ forloop.counter0 }}"></div>
+				</a>
+			</div>
+			<!-- Modal Structure -->
+			<div id="modal{{ forloop.counter0 }}" class="modal">
+				<div class="modal-content black-text pb0">
+					<h4 class="black-text">{{ query.semantic_roles.subject }} {{ query.semantic_roles.action }}...</h4>
+					<p class="pb30">{{ query.semantic_roles.object }}</p>
+
+					<div class="row">
+						<form class="col s12" method="POST" action=".">
+							{% csrf_token %}
+							<div class="row">
+								<div class="input-field col s12">
+									<input id="title{{ forloop.counter0 }}" type="text" class="validate" name="title" placeholder="Mandatory">
+									<label for="title{{ forloop.counter0 }}">Entry Title:</label>
+								</div>
+							</div>
+							<div class="row">
+								<div class="input-field col s6">
+									<input id="category{{ forloop.counter0 }}" type="text" class="validate" name="category" value="{{ keyword.text }}" placeholder="Mandatory">
+									<label for="category{{ forloop.counter0 }}">Category:</label>
+								</div>
+								<div class="input-field col s6">
+									<input id="subcategory{{ forloop.counter0 }}" type="text" class="validate" placeholder="Optional" name="subcategory">
+									<label for="subcategory{{ forloop.counter0 }}">Subcategory:</label>
+								</div>
+							</div>
+							<div class="row">
+								<div class="input-field col s12">
+									<input id="description{{ forloop.counter0 }}" type="text" class="validate" placeholder="Optional" name="description">
+									<label for="description{{ forloop.counter0 }}">Description:</label>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+					<div class="modal-footer">
+					<!-- <a href="#!" type="submit" class="modal-close waves-effect waves-green btn-flat">Create</a> -->
+					<input class="modal-close waves-effect waves-green btn-flat modal-submit-class" type="submit" value="Create" data-modal="{{ forloop.counter0 }}"></input>
+				</div>
+			</div>
+		</div>
+	{% endfor %}
+	</div>
+{% endif %}
+
+<h4 class="center-align mt100">Don't want to search?</h4>
+<div class="row">
+	<div class="input-field col s12 mt0 center-align">
+		<!-- Modal Trigger -->
+		<a class="waves-effect waves-light btn modal-trigger mb100" href="#modal">Create Entry</a>
+	</div>
+</div>
+
+<!-- Modal Structure -->
+			<div id="modal" class="modal">
+				<div class="modal-content black-text pb0">
+					<h4 class="black-text">I Want To...</h4>
+					<div class="row">
+						<form class="col s12" method="POST" action=".">
+							{% csrf_token %}
+							<div class="row">
+								<div class="input-field col s12">
+									<input id="title" type="text" class="validate" name="title" value="{{ search }}">
+									<label for="title">Entry Title:</label>
+								</div>
+							</div>
+							<div class="row">
+								<div class="input-field col s6">
+									<input id="category" type="text" class="validate" name="category">
+									<label for="category">Category:</label>
+								</div>
+								<div class="input-field col s6">
+									<input id="subcategory" type="text" class="validate" placeholder="Optional" name="subcategory">
+									<label for="subcategory">Subcategory:</label>
+								</div>
+							</div>
+							<div class="row">
+								<div class="input-field col s12">
+									<input id="description" type="text" class="validate" name="description">
+									<label for="description">Description:</label>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+					<div class="modal-footer">
+					<!-- <a href="#!" type="submit" class="modal-close waves-effect waves-green btn-flat">Create</a> -->
+					<input class="modal-close waves-effect waves-green btn-flat modal-submit-class" type="submit" value="Create" data-modal=""></input>
+				</div>
+			</div>
+
+{% if form.errors %}
+    {% for field in form %}
+        {% for error in field.errors %}
+            <div class="alert alert-danger">
+                <strong>{{ field.name }}: {{ error|escape }}</strong>
+            </div>
+        {% endfor %}
+    {% endfor %}
+    {% for error in form.non_field_errors %}
+        <div class="alert alert-danger">
+            <strong>Non-field: {{ error|escape }}</strong>
+        </div>
+    {% endfor %}
+{% endif %}
 
 {% endblock %}

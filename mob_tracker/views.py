@@ -1,26 +1,216 @@
-# from django.views.generic.edit import CreateView, UpdateView, DeleteView
-# from django.views.generic.detail import DetailView
-# from django.views.generic.list import ListView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormView
+from django.views.generic.detail import DetailView
+from django.views.generic.list import ListView
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
 from django.contrib.auth import authenticate, login, logout
+# from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
-from .models import Entry, Tip
-from .forms import LoginForm
-
+from .models import Entry, Tip, Profile, TipVote
+from .forms import LoginForm, UserForm, SearchForm, EntryForm, TipForm, TipVoteForm
+from django.conf import settings
+from watson_developer_cloud.natural_language_understanding_v1 \
+  import Features, EntitiesOptions, KeywordsOptions, ConceptsOptions, CategoriesOptions, SemanticRolesOptions
+import json
+import requests
+import statistics as s
 
 def index(request):
-	return render(request, 'index.html')
+	if request.method == 'POST':
+		form = SearchForm(request.POST)
+		if form.is_valid():
+			q = form.cleaned_data['query']
+			response = settings.NATURAL_LANGUAGE_PROCESSING.analyze(
+				text=q,
+				features=Features(
+				keywords=KeywordsOptions(
+					sentiment=True,
+					limit=5),
+				semantic_roles=SemanticRolesOptions(
+					entities=True,
+					keywords=True,
+					limit=1)))
+			print(json.dumps(response, indent=2))
+			query = {}
+			query['semantic_roles'] = {
+										'subject': response['semantic_roles'][0]['subject']['text'].title(), 
+										'action': response['semantic_roles'][0]['action']['verb']['text'], 
+										'object': response['semantic_roles'][0]['object']['text'].title()}
+			query['keywords'] = []
+			for keyword in response['keywords']:
+				query['keywords'].append({
+										'text': keyword['text'].title(), 
+										'relevance': int(keyword['relevance']*100.0)})
+			query['keywords_length'] = len(query['keywords'])
+
+			return render(request, 'index.html', {'query': query, 'search': q})
+		else: 
+			# print(form)
+			# print('form errors', form.errors)
+			return render(request, 'index.html', {'form': form, 'search': ''})
+	else:
+		return render(request, 'index.html')
+
+
+def entry_view(request, entry_title):
+	if request.method == 'POST':
+		form = EntryForm(request.POST)
+		
+		if form.is_valid():
+			# print('FORM HERE')
+			t = form.cleaned_data['title']
+			c = form.cleaned_data['category']
+			sc = form.cleaned_data['subcategory']
+			d = form.cleaned_data['description']
+
+			entry = Entry.objects.create(title=t, 
+										title_clean="".join(e for e in t if e.isalnum()), 
+										category=c, 
+										subcategory=sc, 
+										description=d)
+			user = Profile.objects.get(user=request.user)
+			entry.contributors.add(user)
+			return render(request, 'entry.html', {'entry': entry, 'contributors': [user]})
+		else:
+			# print('FORM:', form)
+			# print('FORM.ERRORS:', form.errors)
+			return render(request, 'entry.html', {'entry': '', 'contributors': ''})
+	else:
+		# print(entry_title, type(entry_title))
+		entry = Entry.objects.get(title_clean=str(entry_title))
+		user = Profile.objects.get(user=request.user)
+		contributors = Profile.objects.filter(entries=entry.id)
+		comments = Tip.objects.filter(topic=entry).order_by('-add_date')
+		# print(Profile.objects.filter(entries=entry['id']))
+		# print(entry.id)
+
+		# if user not in tip['voters']: tip.voters.add(user)
+		# voters = Tip.objects.filter()
+		# comments = user.comments.all().values()
+		# for i in range(len(comments)):
+			# tip = Tip.objects.get(id=tip_id)
+			# users = Profile.objects.filter(tips=comments[i]['id'])
+			# comments[i]['voters'] = users
+			# print(comments[i]['voters'])
+
+
+		return render(request, 'entry.html', {'entry': entry, 'contributors': contributors, 'comments': comments, 'user': user})
+
+def tip_view(request, entry_title):
+	if request.method == 'POST':
+		form = TipForm(request.POST)
+		if form.is_valid():
+			comment = {}
+			color = '255,255,255'
+			comment['body'] = form.cleaned_data['body']
+			if len(comment['body']) > 10:
+				response = settings.NATURAL_LANGUAGE_PROCESSING.analyze(
+					text=comment['body'],
+					features=Features(
+						keywords=KeywordsOptions(
+							emotion=True,
+							sentiment=True,
+							limit=5)))
+				# print(json.dumps(response, indent=2))
+				scores, red, green, blue = [], [], [], []
+				for keyword in response['keywords']:
+					scores.append((int(keyword['relevance']*10.0)+int(keyword['sentiment']['score']*10.0))//2)
+					# red.append(keyword['emotion']['joy']*255)
+					# green.append((keyword['emotion']['anger'] + keyword['emotion']['disgust'])*255//2)
+					# blue.append((keyword['emotion']['fear'] + keyword['emotion']['sadness'])*255//2)
+				comment['score'] = s.mean(scores)+1
+				# print('SCORE:', comment['score'])
+				# comment['color'] = hex(int(s.mean(red)))[1:] + hex(int(s.mean(green)))[1:] + hex(int(s.mean(blue)))[1:]
+				# comment['color'] = {'r': int(s.mean(red)), 'g': int(s.mean(green)), 'b': int(s.mean(blue))}
+				# color = '%s,%s,%s' % (comment['color']['r'], comment['color']['g'], comment['color']['b'])
+				# print('RED:', int(s.mean(red)))
+				# print('GREEN:', int(s.mean(green)))
+				# print('BLUE:', int(s.mean(blue)))
+				# print('COMMENT COLOR:', comment['color'])
+				# print('COLOR:', color)
+			else:
+				comment['score'] = 1
+				# comment['color'] = {'r': 255, 'g': 255, 'b': 255}
+			
+			# print('ENTRY_TITLE:', entry_title)
+			user = Profile.objects.get(user=request.user)
+			entry = Entry.objects.get(title_clean=entry_title)
+			contributors = Profile.objects.filter(entries=entry.id)
+			if user not in contributors: entry.contributors.add(user)
+			tip = Tip.objects.create(author=request.user,
+									topic=entry,
+									body=comment['body'],
+									votes=comment['score'],
+									color=color)
+			tip.voters.add(user)
+			tip_vote = TipVote.objects.create(tip=tip,
+											user=request.user,
+											polarity=True)
+			return render(request, 'entry.html', {'comments': comment, 'user': user})
+		else: 
+			print(form)
+			print('form errors', form.errors)
+			return render(request, 'entry.html', {'form': form, 'tip': ''})
+	else:
+		return render(request, 'entry.html', {'form': form, 'tip': ''})
+
+def tip_vote_view(request, tip_id):
+	if request.method == 'POST':
+		form = TipVoteForm(request.POST)
+		if form.is_valid():
+			p = form.cleaned_data['polarity']
+			tip = Tip.objects.get(id=tip_id)
+			tip_vote = None
+			try:
+				tip_vote = TipVote.objects.get(user=user)
+				tip_vote.polarity = not tip_vote.polarity
+				tip_vote.save(update_fields=['polarity'])
+			except:
+				tip_vote = TipVote.objects.create(tip=tip, 
+												user=request.user, 
+												polarity=p)
+
+			user = Profile.objects.get(user=request.user)
+			voters = Tip.objects.filter()
+			if user not in voters: tip.voters.add(user)
+			# if user not in tip['voters']: tip.voters.add(user)
+			if p: tip.votes += 1
+			else: tip.votes -= 1
+			tip.save(update_fields=['votes'])
+
+			return HttpResponseRedirect('/')
+		else:
+			print('form errors', form.errors)
+			return HttpResponseRedirect('/')
+	else:
+		return HttpResponseRedirect('/')
 
 def profile_view(request, username):
-	user = User.objects.get(username=username)
-	cats = Cat.objects.filter(user=user)
-	return render(request, 'profile.html', {'username': username, 'cats': cats})
+	browsing_user = User.objects.get(username=username)
+	user = Profile.objects.get(user=browsing_user.id)
+	entries = user.entries.all().values()
+	for i in range(len(entries)):
+		users = Profile.objects.filter(entries=entries[i]['id'])
+		entries[i]['contributors'] = users
+	return render(request, 'profile.html', {'profile': user, 'entries': entries})
+
+def signup_view(request):
+	if request.method == 'POST':
+		form = UserForm(request.POST)
+		if form.is_valid():
+			u = form.cleaned_data['username']
+			e = form.cleaned_data['email']
+			p = form.cleaned_data['password']
+			user = User.objects.create_user(u, e, p)
+			login(request, user)
+			return HttpResponseRedirect('/')
+	else:
+		form = UserForm()
+		return render(request, 'signup.html', {'form': form})
 
 def login_view(request):
 	if request.method == 'POST':
-		# if post, then authenticate (user submitted username and password)
 		form = LoginForm(request.POST)
 		if form.is_valid():
 			u = form.cleaned_data['username']
@@ -32,8 +222,10 @@ def login_view(request):
 					return HttpResponseRedirect('/')
 				else:
 					print("The account has been disabled.")
+					return HttpResponseRedirect('/login/')
 			else:
 				print("The username and/or password is incorrect.")
+				return render(request, 'login.html', {'error': "The username and/or password is incorrect.", 'form': form})
 	else:
 		form = LoginForm()
 		return render(request, 'login.html', {'form': form})
@@ -41,67 +233,3 @@ def login_view(request):
 def logout_view(request):
 	logout(request)
 	return HttpResponseRedirect('/')
-
-
-
-
-
-
-
-
-# def party_list(request):
-# 	parties = Party.objects.all()
-# 	form = PartyForm()
-# 	return render(request, 'party_list.html', {'parties': parties, 'form': form})
-
-
-# class PartyList(ListView):
-# 	context_object_name = 'parties'
-# 	template_name = 'party_list.html'
-
-# 	def get_queryset(self):
-# 		return Party.objects.all()
-
-# def party_detail(request, pk):
-# 	# parties = Party.objects.all()
-# 	# form_party = PartyForm()
-# 	form_clown = ClownForm()
-# 	party = None
-# 	try: party = Party.objects.get(id=pk)
-# 	except: pass
-# 	return render(request, 'party_detail.html', {'party': party, 'form': form_clown})
-
-
-# class PartyDetail(DetailView):
-# 	template_name = 'party_detail.html'
-# 	model = Party
-
-# class PartyPost(CreateView):
-# 	# template_name = 'party_list.html'
-# 	model = Party
-# 	success_url = reverse_lazy("party_list")
-# 	fields = ['title', 'location', 'description']
-
-# class ClownPost(CreateView):
-# 	pk = ''
-# 	def dispatch(self, request, *args, **kwargs):
-# 		# self.party = get_object_or_404(Party, pk=kwargs['pk'])
-# 		# print('%%%%% party number:', kwargs['pk'])
-# 		pk = kwargs['pk']
-# 		return super().dispatch(request, *args, **kwargs)
-
-# 	# def form_valid(self, form):
-# 	# 	form.instance.party = self.party
-# 	# 	return super().form_valid(form)
-# 	if pk != '': print('%%%%% party number:', pk)
-# 	model = Clown
-# 	success_url = reverse_lazy("party_detail", kwargs={'pk': pk})
-# 	fields = ['name', 'description']
-
-# class PartyDelete(DeleteView):
-#     pass
-
-# class PartyUpdate(UpdateView):
-#     pass
-
-
