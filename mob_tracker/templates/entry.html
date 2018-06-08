@@ -6,7 +6,7 @@
 		<!-- <div class="card-image waves-effect waves-block waves-light">
 			<img class="activator" src="images/office.jpg">
 		</div> -->
-		<div class="card-content">
+		<div class="card-content entry-class">
 			<span class="card-title activator grey-text text-darken-4">{{entry.title}}<i class="material-icons right">more_vert</i></span>
 			<p class="black-text">Category: {{entry.category}}</p>
 			<hr>
@@ -20,14 +20,44 @@
 			{% endfor %}
 			</p>
 		</div>
-		<div class="card-reveal">
+		<div class="card-reveal entry-class"">
 			<span class="card-title grey-text text-darken-4">Date added: {{entry.add_date}}<i class="material-icons right">close</i></span>
 			<p class="black-text">Description: {{entry.description}}</p>
 		</div>
 	</div>
+
+	<h4 class="center-align mt50 mb30">Comments</h4>
+	{% if comments %}
+		{% for comment in comments %}
+			<div class="card mb0">
+				<div class="card-content">
+					<a href="{% url 'profile' comment.author %}"><span class="card-title grey-text text-darken-4">{{comment.author}} says...</span></a>
+					<p class="black-text">{{comment.body}}</p>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col 4 vote" data-vote="True">+Upvote</div>
+				<div class="col 4 vote" data-vote="False">-Downvote</div>
+				<div class="col 4">Votes: {{comment.votes}}</div>
+			</div>
+		{% endfor %}
+	{% endif %}
+
+	<form id="addTip" method="POST" action="."  data-title="{{ entry.title_clean }}">
+		{% csrf_token %}
+		<div class="row">
+			<div class="input-field col s12 search-input-container-class">
+				<input id="commentBody" type="text" class="validate center-align search-input-class" autofocus="true">
+			</div>
+		</div>
+		<div class="row">
+			<div class="input-field col s12 mt0 center-align">
+				<input class="btn" type="submit" value="Comment"></input>
+			</div>
+		</div>
+	</form>
 {% else %}
 	<h3>No such entries!</h3>
-
 {% endif %}
 
 {% endblock %}

@@ -1,12 +1,63 @@
-// console.log('app.js is running...');
 $(document).ready(function(){
+	const csrftoken = Cookies.get('csrftoken');
 	$('.modal').modal();
 
 	$('.modal-submit-class').on('click', (e) => {
 		e.preventDefault();
-		console.log('submit');
+		let modal = e.target.getAttribute("data-modal");
+		let title_clean = $('#title' + modal).val().replace(/[^A-Z0-9]/ig, "");
+		let data = {
+			title: $('#title' + modal).val(),
+			category: $('#category' + modal).val(), 
+			subcategory: $('#subcategory' + modal).val(), 
+			description: $('#description' + modal).val()}
+		$.ajax({
+			type: "POST",
+			headers: {'Content-Type': 'application/x-www-form-urlencoded',
+						'X-CSRFToken': csrftoken},
+			url: `/entry/${title_clean}/`,
+			data: $.param(data),
+			// success: success,
+			error: error
+		})
+		.done(() => {
+			console.log('SUCCESS POSTING\n');
+			window.history.pushState("Details", "Title", `/entry/${title_clean}/`);
+			location.reload();
+		});
+	});
+
+	$('#addTip').on('submit', (e) => {
+		e.preventDefault();
+		let entry = e.target.getAttribute("data-title");
+		console.log(entry);
+		// let data = {body: $('#commentBody').val()}
+		$.ajax({
+			type: "POST",
+			headers: {'Content-Type': 'application/x-www-form-urlencoded',
+						'X-CSRFToken': csrftoken},
+			url: `/tip/${entry}/`,
+			data: $.param({body: $('#commentBody').val()}),
+			success: success,
+			error: error
+		});
 	});
 });
+
+let success = function(data) {
+	console.log('SUCCESS POSTING\n');
+	// console.log('DATA:\n' + data);
+	// setTimeout(function(){
+	// 	location.reload();
+	// }, 5000);
+	location.reload();
+}
+
+let error = function(e) {
+	console.log('FAIL POSTING\n' + e);
+	// console.log('ERROR:\n' + e);
+}
+
 // on page load...
 moveProgressBar();
 // on browser resize...

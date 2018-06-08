@@ -8,8 +8,6 @@ class LoginForm(forms.Form):
 	password = forms.CharField(label="Password", widget=forms.PasswordInput())
 
 class UserForm(forms.Form):
-	# first_name = forms.CharField(label="First Name", max_length=64)
-	# last_name = forms.CharField(label="Last Name", max_length=128)
 	username = forms.CharField(label="Username", max_length=64)
 	email = forms.CharField(label="Email", max_length=128, widget=forms.EmailInput())
 	password = forms.CharField(label="Password", max_length=64, widget=forms.PasswordInput())
@@ -20,24 +18,18 @@ class SearchForm(forms.Form):
 class EntryForm(forms.Form):
 	title = forms.CharField(max_length=100)
 	category = forms.CharField(max_length=100)
-	subcategory = forms.CharField(max_length=100)
-	description = forms.CharField(max_length=200)
-	# add_date = forms.DateTimeField('date added')
-	# contributors = models.ManyToManyField('Profile', blank=True)
+	subcategory = forms.CharField(max_length=100, required=False)
+	description = forms.CharField(max_length=200, required=False)
 
+class TipForm(forms.Form):
+	# author = forms.IntegerField()
+	# topic = forms.IntegerField()
+	body = forms.CharField(max_length=200)
+	# votes = forms.IntegerField()
+	# voters = models.ManyToManyField('Profile', through=Profile, blank=True, default=None)
+	# add_date = models.DateTimeField('date added', default=datetime.now, blank=True)
 
-
-# class CatForm(forms.ModelForm):
-# 	class Meta:
-# 		model = Cat
-# 		fields = ['name', 'breed', 'description', 'age']
-
-# class UserForm(forms.ModelForm):
-#     class Meta:
-#         model = User
-#         fields = ('first_name', 'last_name', 'username', 'email', 'password')
-
-# class ProfileForm(forms.ModelForm):
-#     class Meta:
-#         model = Profile
-#         fields = ('name')
+# class TipVoteForm(forms.Form):
+# 	tip = forms.IntegerField()
+# 	user = forms.IntegerField()
+# 	polarity = forms.BooleanField()

@@ -43,6 +43,9 @@ h5 {
 a {
   color: black;
 }
+hr {
+  color: black!important;
+}
 .navigation-class {
   background-color: #00e8f4;
 }
@@ -59,4 +62,12 @@ a {
   .search-title-class {
     font-size: 20px!important;
   }
+}
+.entry-class {
+  /*margin-top: 50px;*/
+  background-color: #ff934c!important;
+}
+
+.vote:hover {
+  cursor: pointer;
 }
