@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
-import dj_database_url
+# import dj_database_url
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -19,7 +20,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
-
 
 import environ
 # root = environ.Path(__file__) - 3 # three folder back (/a/b/c/ - 3 = /)
@@ -85,18 +85,18 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mob.wsgi.application'
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': ('mob'),
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': ('mob'),
+    }
+}
 
 # change back to normal database for localhost
-DATABASES = {}
-DATABASES['default'] = dj_database_url.config(
-    default='postgres://cnupkaabfeqrch:9d706c13fb535747007f6ca05b2f28ccd69c7ef89f215c87571b255ff7ef51e3@ec2-23-23-130-158.compute-1.amazonaws.com:5432/de6jnmg9shjd86'
-)
+# DATABASES = {}
+# DATABASES['default'] = dj_database_url.config(
+#     default='postgres://cnupkaabfeqrch:9d706c13fb535747007f6ca05b2f28ccd69c7ef89f215c87571b255ff7ef51e3@ec2-23-23-130-158.compute-1.amazonaws.com:5432/de6jnmg9shjd86'
+# )
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -131,7 +131,21 @@ USE_L10N = True
 USE_TZ = True
 
 
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
+STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
 STATIC_URL = '/static/'
+STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+
+# Extra places for collectstatic to find static files.
+STATICFILES_DIRS = (
+    os.path.join(PROJECT_ROOT, 'static'),
+)
+
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+# STATICFILES_DIRS = (
+#     os.path.join(BASE_DIR, 'static'),
+# )
