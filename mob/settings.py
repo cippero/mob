@@ -84,18 +84,18 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mob.wsgi.application'
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': ('mob'),
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': ('mob'),
+    }
+}
 
 # change back to normal database for localhost
-DATABASES = {}
-DATABASES['default'] = dj_database_url.config(
-    default='postgres://cnupkaabfeqrch:9d706c13fb535747007f6ca05b2f28ccd69c7ef89f215c87571b255ff7ef51e3@ec2-23-23-130-158.compute-1.amazonaws.com:5432/de6jnmg9shjd86'
-)
+# DATABASES = {}
+# DATABASES['default'] = dj_database_url.config(
+#     default='postgres://cnupkaabfeqrch:9d706c13fb535747007f6ca05b2f28ccd69c7ef89f215c87571b255ff7ef51e3@ec2-23-23-130-158.compute-1.amazonaws.com:5432/de6jnmg9shjd86'
+# )
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
