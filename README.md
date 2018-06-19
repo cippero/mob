@@ -1,5 +1,5 @@
 [Check out the app!](/)
-# InkyTweet
+# Mob
 
 ## Project Proposal
 
