@@ -46,11 +46,11 @@ def index(request):
 			entries = Entry.objects.filter()
 			return render(request, 'index.html', {'query': query, 'search': q, 'entries': entries})
 		else: 
-			# print(form)
 			# print('form errors', form.errors)
 			return render(request, 'index.html', {'form': form, 'search': ''})
 	else:
 		entries = Entry.objects.filter()
+		# print({'entries': entries})
 		return render(request, 'index.html', {'entries': entries})
 
 
