@@ -20,34 +20,20 @@ def index(request):
 	if request.method == 'POST':
 		form = SearchForm(request.POST)
 		if form.is_valid():
-			q = form.cleaned_data['query']
-			response = settings.NATURAL_LANGUAGE_PROCESSING.analyze(
-				text=q,
-				features=Features(
-				keywords=KeywordsOptions(
-					sentiment=True,
-					limit=5),
-				semantic_roles=SemanticRolesOptions(
-					entities=True,
-					keywords=True,
-					limit=1)))
-			print(json.dumps(response, indent=2))
-			query = {}
-			query['semantic_roles'] = {
-										'subject': response['semantic_roles'][0]['subject']['text'].title(), 
-										'action': response['semantic_roles'][0]['action']['verb']['text'], 
-										'object': response['semantic_roles'][0]['object']['text'].title()}
-			query['keywords'] = []
-			for keyword in response['keywords']:
-				query['keywords'].append({
-										'text': keyword['text'].title(), 
-										'relevance': int(keyword['relevance']*100.0)})
-			query['keywords_length'] = len(query['keywords'])
+			# print('FORM HERE')
+			query = form.cleaned_data['query']
+			query_clean = "".join(e for e in query if e.isalnum())
+			# add logic for matching based on percentage instead of exactly the same as user input
+			query_matches = Entry.objects.filter(title_clean=query_clean)
 			entries = Entry.objects.filter()
-			return render(request, 'index.html', {'query': query, 'search': q, 'entries': entries})
-		else: 
-			# print('form errors', form.errors)
-			return render(request, 'index.html', {'form': form, 'search': ''})
+			print({'query_matches': query_matches})
+			return render(request, 'index.html', {'entries': entries, 'query_matches': query_matches})
+		else:
+			# print('FORM:', form)
+			# print('FORM.ERRORS:', form.errors)
+			# add error handling to forms
+			entries = Entry.objects.filter()
+			return render(request, 'index.html', {'query': query, 'search': q, 'entries': entries, 'form': form})
 	else:
 		entries = Entry.objects.filter()
 		# print({'entries': entries})
@@ -57,7 +43,6 @@ def index(request):
 def entry_view(request, entry_title):
 	if request.method == 'POST':
 		form = EntryForm(request.POST)
-		
 		if form.is_valid():
 			# print('FORM HERE')
 			t = form.cleaned_data['title']

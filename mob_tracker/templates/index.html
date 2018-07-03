@@ -16,61 +16,6 @@
 	</div>
 </form>
 
-{% if query %}
-	<h3 class="center-align">{{ query.semantic_roles.subject }} {{ query.semantic_roles.action }}...</h3>
-	<p class="center-align">{{ query.semantic_roles.object }}</p>
-	<div class="progress-bars-class">
-	{% for keyword in query.keywords %}
-		<div>
-			<div class="progress-wrap progress wrap-class{{ forloop.counter0 }}" data-progress-percent="{{ keyword.relevance }}">
-				<a class="modal-trigger" href="#modal{{ forloop.counter0 }}">
-					<p class="pt15">{{ keyword.text }} ({{ keyword.relevance }}%)</p>
-					<div class="progress-bar progress bar-class{{ forloop.counter0 }}"></div>
-				</a>
-			</div>
-			<!-- Modal Structure -->
-			<div id="modal{{ forloop.counter0 }}" class="modal">
-				<div class="modal-content black-text pb0">
-					<h4 class="black-text">{{ query.semantic_roles.subject }} {{ query.semantic_roles.action }}...</h4>
-					<p class="pb30">{{ query.semantic_roles.object }}</p>
-
-					<div class="row">
-						<form class="col s12" method="POST" action=".">
-							{% csrf_token %}
-							<div class="row">
-								<div class="input-field col s12">
-									<input id="title{{ forloop.counter0 }}" type="text" class="validate" name="title" placeholder="Mandatory" value="{{search}}">
-									<label for="title{{ forloop.counter0 }}">Entry Title:</label>
-								</div>
-							</div>
-							<div class="row">
-								<div class="input-field col s6">
-									<input id="category{{ forloop.counter0 }}" type="text" class="validate" name="category" value="{{ keyword.text }}" placeholder="Mandatory">
-									<label for="category{{ forloop.counter0 }}">Category:</label>
-								</div>
-								<div class="input-field col s6">
-									<input id="subcategory{{ forloop.counter0 }}" type="text" class="validate" placeholder="Optional" name="subcategory">
-									<label for="subcategory{{ forloop.counter0 }}">Subcategory:</label>
-								</div>
-							</div>
-							<div class="row">
-								<div class="input-field col s12">
-									<input id="description{{ forloop.counter0 }}" type="text" class="validate" placeholder="Optional" name="description">
-									<label for="description{{ forloop.counter0 }}">Description:</label>
-								</div>
-							</div>
-						</form>
-					</div>
-				</div>
-					<div class="modal-footer">
-					<!-- <a href="#!" type="submit" class="modal-close waves-effect waves-green btn-flat">Create</a> -->
-					<input class="modal-close waves-effect waves-green btn-flat modal-submit-class" type="submit" value="Create" data-modal="{{ forloop.counter0 }}"></input>
-				</div>
-			</div>
-		</div>
-	{% endfor %}
-	</div>
-{% endif %}
 
 <h4 class="center-align mt100">Don't want to search?</h4>
 <div class="row">
