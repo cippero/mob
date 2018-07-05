@@ -10,6 +10,7 @@ django-cors-headers = "*"
 dj-database-url = "*"
 django-environ = "*"
 watson_developer_cloud = "*"
+nltk = "*"
 
 [requires]
 python_version = "3.6.4"

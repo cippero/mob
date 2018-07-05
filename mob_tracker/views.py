@@ -15,25 +15,32 @@ from watson_developer_cloud.natural_language_understanding_v1 \
 import json
 import requests
 import statistics as s
+# from django.db.models import Q
+import nltk
+# nltk.download('punkt') #set up on heroku?
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+
 
 def index(request):
 	if request.method == 'POST':
 		form = SearchForm(request.POST)
 		if form.is_valid():
-			# print('FORM HERE')
 			query = form.cleaned_data['query']
-			query_clean = "".join(e for e in query if e.isalnum())
-			# add logic for matching based on percentage instead of exactly the same as user input
-			query_matches = Entry.objects.filter(title_clean=query_clean)
-			entries = Entry.objects.filter()
-			print({'query_matches': query_matches})
-			return render(request, 'index.html', {'entries': entries, 'query_matches': query_matches})
+			# query_clean = "".join(e for e in query if e.isalnum())			
+			# stop_words = set(stopwords.words('english'))
+			# word_tokens = word_tokenize(query)
+			# filtered_sentence = list(set([w.lower() for w in word_tokens if not w in stop_words and w.isalnum()]))
+			# query_matches = Entry.objects.filter(title_clean__contains=filtered_sentence, title_clean__in=filtered_sentence)
+			# entries = Entry.objects.filter()
+			entries = Entry.objects.filter(title_clean__contains=query).order_by('-add_date')
+			return render(request, 'index.html', {'entries': entries, 'form': ''})
 		else:
 			# print('FORM:', form)
 			# print('FORM.ERRORS:', form.errors)
 			# add error handling to forms
-			entries = Entry.objects.filter()
-			return render(request, 'index.html', {'query': query, 'search': q, 'entries': entries, 'form': form})
+			entries = Entry.objects.filter().order_by('-add_date')
+			return render(request, 'index.html', {'entries': entries, 'form': form})
 	else:
 		entries = Entry.objects.filter()
 		# print({'entries': entries})
