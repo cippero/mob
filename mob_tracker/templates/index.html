@@ -37,24 +37,26 @@
 							{% csrf_token %}
 							<div class="row">
 								<div class="input-field col s12">
-									<input id="title" type="text" class="validate" name="title" value="{{ search }}">
+									<input id="title" type="text" class="validate" placeholder="Required" name="title" value="{{ search }}" autocomplete="off">
 									<label for="title">Entry Title:</label>
 								</div>
 							</div>
 							<div class="row">
-								<div class="input-field col s6">
-									<input id="category" type="text" class="validate" name="category">
-									<label for="category">Category:</label>
-								</div>
-								<div class="input-field col s6">
-									<input id="subcategory" type="text" class="validate" placeholder="Optional" name="subcategory">
-									<label for="subcategory">Subcategory:</label>
+								<div class="input-field col s12">
+									<input id="description" type="text" class="validate" placeholder="Optional" name="description" autocomplete="off">
+									<label for="description">Description:</label>
 								</div>
 							</div>
 							<div class="row">
-								<div class="input-field col s12">
-									<input id="description" type="text" class="validate" name="description">
-									<label for="description">Description:</label>
+								<div class="input-field col s6">
+									<!-- <input id="category" type="text" class="validate" name="category"> -->
+									<input type="text" id="category" class="autocomplete" placeholder="Required" autocomplete="off">
+          							<label for="category">Category:</label>
+									<!-- <label for="category">Category:</label> -->
+								</div>
+								<div class="input-field col s6">
+									<input id="subcategory" type="text" class="validate" placeholder="Optional" name="subcategory" autocomplete="off">
+									<label for="subcategory">Subcategory:</label>
 								</div>
 							</div>
 						</form>

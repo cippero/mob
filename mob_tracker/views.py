@@ -29,6 +29,7 @@ class Helpers:
 			return merge_queries(filtered_sentence, i-1, queryset | query)
 
 def index(request):
+	categories = ['one', 'two', 'three', 'four', 'five']
 	if request.method == 'POST':
 		form = SearchForm(request.POST)
 		if form.is_valid():
@@ -42,18 +43,18 @@ def index(request):
 			elif len(filtered_sentence) > 1:
 				entries = Helpers.merge_queries(filtered_sentence, len(filtered_sentence)-1)
 			print({'entries': entries, 'query': filtered_sentence})
-			return render(request, 'index.html', {'entries': entries, 'form': '', 'query': filtered_sentence})
+			return render(request, 'index.html', {'entries': entries, 'form': '', 'query': filtered_sentence, 'categories': categories})
 		else:
 			# print('FORM:', form)
 			# print('FORM.ERRORS:', form.errors)
 			# add error handling to forms
 			# error handling for empty search
 			entries = Entry.objects.filter().order_by('-add_date')
-			return render(request, 'index.html', {'entries': entries, 'form': form, 'query': ''})
+			return render(request, 'index.html', {'entries': entries, 'form': form, 'query': '', 'categories': categories})
 	else:
 		entries = Entry.objects.filter().order_by('title_clean')
 		# print({'entries': entries})
-		return render(request, 'index.html', {'entries': entries, 'form': '', 'query': ''})
+		return render(request, 'index.html', {'entries': entries, 'form': '', 'query': '', 'categories': categories})
 
 
 def entry_view(request, entry_title):
