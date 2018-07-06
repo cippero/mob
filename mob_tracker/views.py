@@ -21,30 +21,39 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 
+class Helpers:
+	def merge_queries(filtered_sentence, i, queryset=Entry.objects.none()): 
+		if i == -1: return queryset
+		else:
+			query = Entry.objects.filter(title_clean__contains=filtered_sentence[i]).order_by('title_clean')
+			return merge_queries(filtered_sentence, i-1, queryset | query)
 
 def index(request):
 	if request.method == 'POST':
 		form = SearchForm(request.POST)
 		if form.is_valid():
-			query = form.cleaned_data['query']
-			# query_clean = "".join(e for e in query if e.isalnum())			
-			# stop_words = set(stopwords.words('english'))
-			# word_tokens = word_tokenize(query)
-			# filtered_sentence = list(set([w.lower() for w in word_tokens if not w in stop_words and w.isalnum()]))
-			# query_matches = Entry.objects.filter(title_clean__contains=filtered_sentence, title_clean__in=filtered_sentence)
-			# entries = Entry.objects.filter()
-			entries = Entry.objects.filter(title_clean__contains=query).order_by('-add_date')
-			return render(request, 'index.html', {'entries': entries, 'form': ''})
+			query = form.cleaned_data['query']		
+			stop_words = set(stopwords.words('english'))
+			word_tokens = word_tokenize(query)
+			filtered_sentence = list(set([w.lower() for w in word_tokens if not w in stop_words and w.isalnum()]))
+			entries = Entry.objects.none()
+			if len(filtered_sentence) == 1:
+				entries = Entry.objects.filter(title_clean__contains=filtered_sentence[0]).order_by('title_clean')
+			elif len(filtered_sentence) > 1:
+				entries = Helpers.merge_queries(filtered_sentence, len(filtered_sentence)-1)
+			print({'entries': entries, 'query': filtered_sentence})
+			return render(request, 'index.html', {'entries': entries, 'form': '', 'query': filtered_sentence})
 		else:
 			# print('FORM:', form)
 			# print('FORM.ERRORS:', form.errors)
 			# add error handling to forms
+			# error handling for empty search
 			entries = Entry.objects.filter().order_by('-add_date')
-			return render(request, 'index.html', {'entries': entries, 'form': form})
+			return render(request, 'index.html', {'entries': entries, 'form': form, 'query': ''})
 	else:
-		entries = Entry.objects.filter()
+		entries = Entry.objects.filter().order_by('title_clean')
 		# print({'entries': entries})
-		return render(request, 'index.html', {'entries': entries})
+		return render(request, 'index.html', {'entries': entries, 'form': '', 'query': ''})
 
 
 def entry_view(request, entry_title):

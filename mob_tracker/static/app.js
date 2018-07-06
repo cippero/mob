@@ -27,6 +27,8 @@ $(document).ready(function(){
 		});
 	});
 
+	$('#reset-search').on('click', (e) => { location.reload(); });
+
 	$('#addTip').on('submit', (e) => {
 		e.preventDefault();
 		let entry = e.target.getAttribute("data-title");
