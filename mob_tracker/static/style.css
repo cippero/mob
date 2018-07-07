@@ -59,6 +59,10 @@ hr {
   height: 50px;
   font-size: 20px;
 }
+a[href="#create-new"] {
+  padding-top: 7px;
+  width: 150px;
+}
 /*.search-input-container-class {
   min-width: 100px;
   max-width: 100px;

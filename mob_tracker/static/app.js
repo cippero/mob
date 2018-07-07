@@ -1,15 +1,9 @@
 $(document).ready(function(){
 	const csrftoken = Cookies.get('csrftoken');
-	$('.modal').modal();
 	
-	$('#category').autocomplete({
-      data: {
-        "Apple": null,
-        "Microsoft": null,
-        "Google": 'https://placehold.it/250x250'
-      },
-    });
+	$('#category').autocomplete({data: categories});
 
+	$('.modal').modal();
 	$('.modal-submit-class').on('click', (e) => {
 		e.preventDefault();
 		let modal = e.target.getAttribute("data-modal");
@@ -35,7 +29,7 @@ $(document).ready(function(){
 		});
 	});
 
-	$('#reset-search').on('click', (e) => { location.reload(); });
+	$('#reset-search').on('click', (e) => { window.history.pushState("Details", "Title", '/'); });
 
 	$('#addTip').on('submit', (e) => {
 		e.preventDefault();

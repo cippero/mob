@@ -1,8 +1,8 @@
 {% extends 'layout.html' %}
-
 {% block content %}
-<h5 class="contributions-class center-align">{{ profile.user }}'s contributions</h5>
 
+<div class="container">
+<h5 class="contributions-class center-align">{{ profile.user }}'s contributions</h5>
 {% if entries %}
 	{% for entry in entries %}
 		<div class="row">
@@ -36,12 +36,6 @@
 		</div>
 	{% endfor %}
 {% endif %}
+</div>
 
 {% endblock %}
-
-title = models.CharField(max_length=100)
-	category = models.CharField(max_length=100)
-	subcategory = models.CharField(max_length=100, default=None)
-	description = models.TextField()
-	add_date = models.DateTimeField('date added')
-	contributors

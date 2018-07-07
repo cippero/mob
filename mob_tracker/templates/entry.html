@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
 
+<div class="container">
 {% if entry %}
 	<div class="card">
 		<!-- <div class="card-image waves-effect waves-block waves-light">
@@ -59,5 +60,6 @@
 {% else %}
 	<h3>No such entries!</h3>
 {% endif %}
+</div>
 
 {% endblock %}

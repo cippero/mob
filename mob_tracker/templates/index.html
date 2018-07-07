@@ -1,8 +1,9 @@
 {% extends "layout.html" %}
 {% block content %}
 
+<div class="container">
 <h3 class="center-align mt50 search-title-class">What would you like to conquer next?</h3>
-<form method="POST" action=".">
+<form class="mb0" method="POST" action=".">
 	{% csrf_token %}
 	<div class="row">
 		<div class="input-field col s12 search-input-container-class">
@@ -18,63 +19,19 @@
 		</div>
 	</div>
 </form>
-
-
-<!-- <h4 class="center-align mt100">Don't want to search?</h4> -->
 <div class="row">
 	<div class="input-field col s12 mt0 center-align">
-		<!-- Modal Trigger -->
-		<a class="waves-effect waves-light btn modal-trigger mb100" href="#modal">New Entry</a>
+		<a class="btn search-btn-class" type="submit" href="#create-new">Create</a>
 	</div>
 </div>
 
-<!-- Modal Structure -->
-			<div id="modal" class="modal">
-				<div class="modal-content black-text pb0">
-					<h4 class="black-text">I Want To...</h4>
-					<div class="row">
-						<form class="col s12" method="POST" action=".">
-							{% csrf_token %}
-							<div class="row">
-								<div class="input-field col s12">
-									<input id="title" type="text" class="validate" placeholder="Required" name="title" value="{{ search }}" autocomplete="off">
-									<label for="title">Entry Title:</label>
-								</div>
-							</div>
-							<div class="row">
-								<div class="input-field col s12">
-									<input id="description" type="text" class="validate" placeholder="Optional" name="description" autocomplete="off">
-									<label for="description">Description:</label>
-								</div>
-							</div>
-							<div class="row">
-								<div class="input-field col s6">
-									<!-- <input id="category" type="text" class="validate" name="category"> -->
-									<input type="text" id="category" class="autocomplete" placeholder="Required" autocomplete="off">
-          							<label for="category">Category:</label>
-									<!-- <label for="category">Category:</label> -->
-								</div>
-								<div class="input-field col s6">
-									<input id="subcategory" type="text" class="validate" placeholder="Optional" name="subcategory" autocomplete="off">
-									<label for="subcategory">Subcategory:</label>
-								</div>
-							</div>
-						</form>
-					</div>
-				</div>
-					<div class="modal-footer">
-					<!-- <a href="#!" type="submit" class="modal-close waves-effect waves-green btn-flat">Create</a> -->
-					<input class="modal-close waves-effect waves-green btn-flat modal-submit-class" type="submit" value="Create" data-modal=""></input>
-				</div>
-			</div>
-
 {% if query %}
 	<h4 class="center-align mt100">{% if not entries %}No {% endif %}Search results for:</h4>
-	<ul>
+	<div class="container center-align">
 		{% for keyword in query %}
-			<li>{{ keyword }}</li>
+			<h5>{{ keyword }}...</h5>
 		{% endfor %}
-	</ul>
+	</div>
 {% else %}
 	<h4 class="center-align mt100">All Entries:</h4>
 {% endif %}
@@ -100,6 +57,44 @@
 	</div>
 {% endif %}
 
+
+<div id="create-new" class="container">
+	<h4 class="center-align mt100">Create New</h4>
+	<div class="row">
+		<form class="col s12" method="POST" action=".">
+			{% csrf_token %}
+			<div class="row">
+				<div class="input-field col s12">
+					<input id="title" type="text" class="validate" placeholder="Required" name="title" value="{{ search }}" autocomplete="off">
+					<label for="title">Entry Title:</label>
+				</div>
+			</div>
+			<div class="row">
+				<div class="input-field col s12">
+					<input id="description" type="text" class="validate" placeholder="Optional" name="description" autocomplete="off">
+					<label for="description">Description:</label>
+				</div>
+			</div>
+			<div class="row">
+				<div class="input-field col s6">
+					<input type="text" id="category" class="autocomplete" placeholder="Required" autocomplete="off">
+						<label for="category">Category:</label>
+				</div>
+				<div class="input-field col s6">
+					<input id="subcategory" type="text" class="validate" placeholder="Optional" name="subcategory" autocomplete="off">
+					<label for="subcategory">Subcategory:</label>
+				</div>
+			</div>
+			<div class="row">
+				<div class="input-field col s12 center-align">
+					<a class="waves-effect waves-light btn" type="submit" value="Create">Create</a>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+
+
 {% if form.errors %}
     {% for field in form %}
         {% for error in field.errors %}
@@ -114,5 +109,12 @@
         </div>
     {% endfor %}
 {% endif %}
+</div>
 
+<script>
+	let categories = {};
+	{% for category in categories %}
+		categories['{{ category }}'] = null;
+	{% endfor %}
+</script>
 {% endblock %}
