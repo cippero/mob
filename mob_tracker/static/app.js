@@ -1,18 +1,19 @@
 $(document).ready(function(){
 	const csrftoken = Cookies.get('csrftoken');
 	
-	$('#category').autocomplete({data: categories});
+	$('#category').autocomplete({data: categories})
 
 	$('.modal').modal();
-	$('.modal-submit-class').on('click', (e) => {
+	$('#entry-submit').on('click', (e) => {
 		e.preventDefault();
-		let modal = e.target.getAttribute("data-modal");
-		let title_clean = $('#title' + modal).val().replace(/[^A-Z0-9]/ig, "");
+		console.log('something is happening');
+		// let modal = e.target.getAttribute("data-modal");
+		let title_clean = $('#title').val().replace(/[^A-Z0-9]/ig, "");
 		let data = {
-			title: $('#title' + modal).val(),
-			category: $('#category' + modal).val(), 
-			subcategory: $('#subcategory' + modal).val(), 
-			description: $('#description' + modal).val()}
+			title: $('#title').val(),
+			category: $('#category').val(), 
+			subcategory: $('#subcategory').val(), 
+			description: $('#description').val()}
 		$.ajax({
 			type: "POST",
 			headers: {'Content-Type': 'application/x-www-form-urlencoded',
@@ -29,7 +30,7 @@ $(document).ready(function(){
 		});
 	});
 
-	$('#reset-search').on('click', (e) => { window.history.pushState("Details", "Title", '/'); });
+	$('#reset-search').on('click', (e) => { window.history.pushState("Details", "Title", '/'); location.reload();});
 
 	$('#addTip').on('submit', (e) => {
 		e.preventDefault();

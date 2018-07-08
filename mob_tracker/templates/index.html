@@ -12,16 +12,17 @@
 	</div>
 	<div class="row">
 		<div class="input-field col s12 mt0 center-align">
-			<input class="btn search-btn-class" type="submit" value="Search"></input>
+			<input id="test" class="btn search-btn-class" type="submit" value="Search"></input>
 			{% if query %}
-				<input class="btn search-btn-class" type="button" id="reset-search" value="Reset"></input>
+				<a href="/" id="test" class="btn search-btn-class a-btn">Reset</a>
+				<!-- <input class="btn search-btn-class" type="button" id="reset-search" value="Reset"></input> -->
 			{% endif %}
 		</div>
 	</div>
 </form>
 <div class="row">
 	<div class="input-field col s12 mt0 center-align">
-		<a class="btn search-btn-class" type="submit" href="#create-new">Create</a>
+		<a class="btn search-btn-class a-btn" type="submit" href="#create-new">Create</a>
 	</div>
 </div>
 
@@ -29,7 +30,7 @@
 	<h4 class="center-align mt100">{% if not entries %}No {% endif %}Search results for:</h4>
 	<div class="container center-align">
 		{% for keyword in query %}
-			<h5>{{ keyword }}...</h5>
+			<h5>{{ keyword }}</h5>
 		{% endfor %}
 	</div>
 {% else %}
@@ -87,7 +88,7 @@
 			</div>
 			<div class="row">
 				<div class="input-field col s12 center-align">
-					<a class="waves-effect waves-light btn" type="submit" value="Create">Create</a>
+					<a id="entry-submit" class="waves-effect waves-light btn" type="submit" value="Create">Create</a>
 				</div>
 			</div>
 		</form>
@@ -112,7 +113,6 @@
 </div>
 
 <script>
-	let categories = {};
 	{% for category in categories %}
 		categories['{{ category }}'] = null;
 	{% endfor %}

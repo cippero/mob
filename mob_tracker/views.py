@@ -34,16 +34,16 @@ def index(request):
 	if request.method == 'POST':
 		form = SearchForm(request.POST)
 		if form.is_valid():
-			query = form.cleaned_data['query']		
+			query = form.cleaned_data['query']
 			stop_words = set(stopwords.words('english'))
 			word_tokens = word_tokenize(query)
 			filtered_sentence = list(set([w.lower() for w in word_tokens if not w in stop_words and w.isalnum()]))
 			entries = Entry.objects.none()
+			if query == '': entries = Entry.objects.order_by('title_clean')
 			if len(filtered_sentence) == 1:
 				entries = Entry.objects.filter(title_clean__contains=filtered_sentence[0]).order_by('title_clean')
 			elif len(filtered_sentence) > 1:
 				entries = merge_queries(filtered_sentence, len(filtered_sentence)-1)
-			print({'entries': entries, 'query': filtered_sentence})
 			return render(request, 'index.html', {'entries': entries, 
 													'form': '', 
 													'query': filtered_sentence, 
@@ -68,6 +68,8 @@ def index(request):
 
 
 def entry_view(request, entry_title):
+	# user = ''
+	# if request.user.is_authenticated: user = Profile.objects.get(user=request.user)
 	if request.method == 'POST':
 		form = EntryForm(request.POST)
 		if form.is_valid():
@@ -84,15 +86,15 @@ def entry_view(request, entry_title):
 										description=d)
 			user = Profile.objects.get(user=request.user)
 			entry.contributors.add(user)
-			return render(request, 'entry.html', {'entry': entry, 'contributors': [user]})
+			return render(request, 'entry.html', {'entry': entry, 
+													'contributors': [user]})
 		else:
 			# print('FORM:', form)
 			# print('FORM.ERRORS:', form.errors)
-			return render(request, 'entry.html', {'entry': '', 'contributors': ''})
+			return render(request, 'entry.html', {'entry': '', 
+													'contributors': ''})
 	else:
-		# print(entry_title, type(entry_title))
 		entry = Entry.objects.get(title_clean=str(entry_title))
-		user = Profile.objects.get(user=request.user)
 		contributors = Profile.objects.filter(entries=entry.id)
 		comments = Tip.objects.filter(topic=entry).order_by('-add_date')
 		# print(Profile.objects.filter(entries=entry['id']))
@@ -108,7 +110,9 @@ def entry_view(request, entry_title):
 			# print(comments[i]['voters'])
 
 
-		return render(request, 'entry.html', {'entry': entry, 'contributors': contributors, 'comments': comments, 'user': user})
+		return render(request, 'entry.html', {'entry': entry, 
+												'contributors': contributors, 
+												'comments': comments})
 
 def tip_view(request, entry_title):
 	if request.method == 'POST':
@@ -184,9 +188,10 @@ def tip_vote_view(request, tip_id):
 												user=request.user, 
 												polarity=p)
 
-			user = Profile.objects.get(user=request.user)
-			voters = Tip.objects.filter()
-			if user not in voters: tip.voters.add(user)
+			# user = Profile.objects.get(user=request.user)
+			# voters = TipVote.objects.filter(user=request.user).filter(tip=tip_id)
+			# print({'voters': voters})
+			# if user not in voters: tip.voters.add(user)
 			# if user not in tip['voters']: tip.voters.add(user)
 			if p: tip.votes += 1
 			else: tip.votes -= 1

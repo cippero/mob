@@ -13,7 +13,7 @@ class UserForm(forms.Form):
 	password = forms.CharField(label="Password", max_length=64, widget=forms.PasswordInput())
 
 class SearchForm(forms.Form):
-	query = forms.CharField(max_length=200)
+	query = forms.CharField(max_length=200, required=False)
 
 class EntryForm(forms.Form):
 	title = forms.CharField(max_length=100)
