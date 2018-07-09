@@ -127,34 +127,34 @@ USE_TZ = True
 
 
 # heroku settings
-DATABASES = {}
-DATABASES['default'] = dj_database_url.config(
-    default='postgres://cnupkaabfeqrch:9d706c13fb535747007f6ca05b2f28ccd69c7ef89f215c87571b255ff7ef51e3@ec2-23-23-130-158.compute-1.amazonaws.com:5432/de6jnmg9shjd86'
-)
+# DATABASES = {}
+# DATABASES['default'] = dj_database_url.config(
+#     default='postgres://cnupkaabfeqrch:9d706c13fb535747007f6ca05b2f28ccd69c7ef89f215c87571b255ff7ef51e3@ec2-23-23-130-158.compute-1.amazonaws.com:5432/de6jnmg9shjd86'
+# )
 
-PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STATICFILES_DIRS = (
-    os.path.join(PROJECT_ROOT, 'mob_tracker/static'),
-    os.path.join(PROJECT_ROOT, 'mob_tracker'),
-)
-STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+# PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+# STATIC_URL = '/static/'
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+# STATICFILES_DIRS = (
+#     os.path.join(PROJECT_ROOT, 'mob_tracker/static'),
+#     os.path.join(PROJECT_ROOT, 'mob_tracker'),
+# )
+# STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 
 
 
 
 # # local settings
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': ('mob'),
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': ('mob'),
+    }
+}
 
-# PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
-# STATIC_URL = '/static/'
-# STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
-# STATICFILES_DIRS = (
-#     os.path.join(BASE_DIR, 'static'),
-# )
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)

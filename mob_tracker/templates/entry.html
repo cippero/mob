@@ -30,7 +30,7 @@
 	<h4 class="center-align mt50 mb30">Comments</h4>
 	{% if comments %}
 		{% for comment in comments %}
-			<div class="card mb0">
+			<div class="card mb0" style="background-color: rgb({{comment.color}})">
 				<div class="card-content">
 					<a href="{% url 'profile' comment.author %}"><span class="card-title grey-text text-darken-4">{{comment.author}} says...</span></a>
 					<p class="black-text">{{comment.body}}</p>

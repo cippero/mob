@@ -40,16 +40,20 @@
 {% if entries %}
 	<div class="row">
 		{% for entry in entries %}
-			<div class="col s12 m6">
+			<div class="col m12 l6">
 				<div class="card">
 					<a href="{% url 'entry' entry.title_clean %}">
 					<div class="card-content entry-class">
-						<span class="card-title grey-text text-darken-4">{{entry.title}}</span>
+						<span class="card-title grey-text text-darken-4 truncate">{{entry.title}}</span>
 						<p class="black-text">Category: {{entry.category}}</p>
 						<hr>
 						<p class="black-text">Date Added: {{entry.add_date}}</p>
-						<hr>
-						<p class="black-text">Description: {{entry.description}}</p>
+							<hr>
+						{% if entry.description %}
+							<p class="black-text">Description: {{entry.description}}</p>
+						{% else %}
+							<p style="padding-bottom: 21px;"> </p>
+						{% endif %}
 					</div>
 					</a>
 				</div>

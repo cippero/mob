@@ -18,8 +18,8 @@ import statistics as s
 # from django.db.models import Q
 import nltk
 # nltk.data.path.append('./nltk_data/')
-nltk.download('stopwords')
-nltk.download('punkt') #set up on heroku?
+# nltk.download('stopwords')
+# nltk.download('punkt') #set up on heroku?
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 
@@ -98,7 +98,7 @@ def entry_view(request, entry_title):
 	else:
 		entry = Entry.objects.get(title_clean=str(entry_title))
 		contributors = Profile.objects.filter(entries=entry.id)
-		comments = Tip.objects.filter(topic=entry).order_by('-add_date')
+		comments = Tip.objects.filter(topic=entry).order_by('-votes')
 		# print(Profile.objects.filter(entries=entry['id']))
 		# print(entry.id)
 
@@ -131,28 +131,23 @@ def tip_view(request, entry_title):
 							emotion=True,
 							sentiment=True,
 							limit=5)))
-				# print(json.dumps(response, indent=2))
+				print({'comment': comment['body'], 'response': len(response['keywords'])})
+				print(json.dumps(response, indent=2))
 				scores, red, green, blue = [], [], [], []
 				for keyword in response['keywords']:
 					scores.append((int(keyword['relevance']*10.0)+int(keyword['sentiment']['score']*10.0))//2)
-					# red.append(keyword['emotion']['joy']*255)
-					# green.append((keyword['emotion']['anger'] + keyword['emotion']['disgust'])*255//2)
-					# blue.append((keyword['emotion']['fear'] + keyword['emotion']['sadness'])*255//2)
-				comment['score'] = s.mean(scores)+1
-				# print('SCORE:', comment['score'])
-				# comment['color'] = hex(int(s.mean(red)))[1:] + hex(int(s.mean(green)))[1:] + hex(int(s.mean(blue)))[1:]
-				# comment['color'] = {'r': int(s.mean(red)), 'g': int(s.mean(green)), 'b': int(s.mean(blue))}
-				# color = '%s,%s,%s' % (comment['color']['r'], comment['color']['g'], comment['color']['b'])
-				# print('RED:', int(s.mean(red)))
-				# print('GREEN:', int(s.mean(green)))
-				# print('BLUE:', int(s.mean(blue)))
-				# print('COMMENT COLOR:', comment['color'])
-				# print('COLOR:', color)
-			else:
-				comment['score'] = 1
-				# comment['color'] = {'r': 255, 'g': 255, 'b': 255}
-			
-			# print('ENTRY_TITLE:', entry_title)
+					red.append(keyword['emotion']['joy'])
+					green.append((keyword['emotion']['anger'] + keyword['emotion']['disgust']))
+					blue.append((keyword['emotion']['fear'] + keyword['emotion']['sadness']))
+				if len(response['keywords']) > 0: 
+					comment['score'] = s.mean(scores)+1
+					red = int(sum(red)*255//len(red))
+					green = int(sum(green)*255//len(green))
+					blue = int(sum(blue)*255//len(blue))
+					color = '%s,%s,%s' % (red, green, blue)
+				else: comment['score'] = 1
+			else: comment['score'] = 1
+
 			user = Profile.objects.get(user=request.user)
 			entry = Entry.objects.get(title_clean=entry_title)
 			contributors = Profile.objects.filter(entries=entry.id)
