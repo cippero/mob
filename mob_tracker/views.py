@@ -17,6 +17,7 @@ import requests
 import statistics as s
 # from django.db.models import Q
 import nltk
+# nltk.data.path.append('./nltk_data/')
 # nltk.download('punkt') #set up on heroku?
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
